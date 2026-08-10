@@ -22,7 +22,7 @@ flowchart TD
     CP2["Checkpoint 2: Deep Learning & Stacking<br/>(2D CNN: 82.0%, CRNN: 84.7%, Stack: 88.67%)"]
     CP3["Checkpoint 3: Base Paper Analysis<br/>(Tripartite Perceptual Pipeline & XGBoost 79.0%)"]
     CP4["Checkpoint 4: SHAP & Perceptual Augmentation<br/>(Augmented Stacking Ensemble: 90.00%)"]
-    CP5["Checkpoint 5: Multi-Dataset Scaling<br/>(MTG-Jamendo ROC-AUC: 0.734, MTAT ROC-AUC: 0.842)"]
+    CP5["Checkpoint 5: Multi-Dataset Scaling Setup<br/>(Paper Benchmark MTG-Jamendo: 0.729, MTAT: 0.840<br/>Notebook Placeholder: ~0.502)"]
     CP6["Checkpoint 6: Data Directory Reorganization<br/>(Structured Subfolders & Resilient Path Fallbacks)"]
     CP7["Checkpoint 7: Academic Paper Extension<br/>(Essentia C++, PyTorch VGG-ish & ROAR XAI Faithfulness)"]
     CP8["Checkpoint 8: PyTorch CUDA & Ponytail Refactoring<br/>(NumPy 1.26.4 Fix, -27 Obsolete Cells, Cleaned Workspace)"]
@@ -65,12 +65,12 @@ flowchart TD
   - Synthesized 7 mid-level perceptual features (*Melodiousness, Articulation, Rhythmic Stability, Rhythmic Complexity, Dissonance, Tonal Stability, Minorness*).
   - **Result**: Pushed the Stacking Ensemble test accuracy to **90.00%**.
 
-### Checkpoint 5: Multi-Dataset Scaling (MTG-Jamendo & MagnaTagATune)
+### Checkpoint 5: Multi-Dataset Scaling (MTG-Jamendo & MagnaTagATune Framework)
 - **Task**: Scaling the interpretable pipeline to multi-label and mood tagging datasets.
-- **Results**:
-  - **MTG-Jamendo**: Evaluated `jamendo_gtzan_single_label.csv` $\rightarrow$ **0.734 ROC-AUC** (beating paper's 0.729).
-  - **MagnaTagATune**: Evaluated `annotations_final.csv` top 10 multi-label tags $\rightarrow$ **0.842 ROC-AUC** (matching paper's 0.840).
-  - **Single Unified Notebook**: All 3 dataset pipelines integrated into `music_classification_fixed.ipynb`.
+- **Status & Benchmarks**:
+  - **MTG-Jamendo**: Paper SOTA benchmark $\rightarrow$ **0.729 ROC-AUC** (Notebook currently uses synthetic proxy features: **0.502 ROC-AUC** until real Essentia extraction is run).
+  - **MagnaTagATune**: Paper SOTA benchmark $\rightarrow$ **0.840 ROC-AUC** (Notebook currently uses synthetic proxy features: **0.500 ROC-AUC**).
+  - **Unified Pipeline**: Data handlers and XGBoost multi-label evaluation structures integrated into `music_classification_fixed.ipynb`.
 
 ### Checkpoint 6: Data Directory Reorganization & Path Resilience
 - **Task**: Reorganizing cluttered `Data/` root into clean, structured subfolders.
@@ -113,10 +113,10 @@ flowchart TD
 | **2. CRNN + Attention** | GTZAN | Audio Sequences | Accuracy | 84.67% | Medium (Attention) |
 | **2. Base Stacking Ensemble**| GTZAN | Stacked OOF Probabilities | Accuracy | 88.67% | Low |
 | **4. Augmented Perceptual Ensemble**| **GTZAN** | **Stacked OOF + 7 Mid-Level** | **Accuracy** | **90.00%** | **High (Ensemble SHAP)** |
-| **5. Paper Jamendo Baseline**| MTG-Jamendo | 62 Perceptual / Harmony | ROC-AUC | 0.729 | High (SHAP) |
-| **5. Notebook Jamendo XGBoost**| **MTG-Jamendo**| **Perceptual Descriptors** | **ROC-AUC** | **0.734** | **High (SHAP)** |
-| **5. Paper MagnaTagATune SOTA**| MagnaTagATune| Precomputed Features | ROC-AUC | 0.840 | High (SHAP) |
-| **5. Notebook MTAT XGBoost**| **MagnaTagATune**| **Top-50 Binary Relevance** | **ROC-AUC** | **0.842** | **High (SHAP)** |
+| **5. Paper Jamendo SOTA**| MTG-Jamendo | 62 Perceptual / Harmony | ROC-AUC | 0.729 | High (SHAP) |
+| **5. Notebook Jamendo Proxy**| **MTG-Jamendo**| **Synthetic Placeholder** | **ROC-AUC** | **0.502** | **Proxy (Placeholder)** |
+| **5. Paper MagnaTagATune SOTA**| MagnaTagATune| 62 Perceptual / Harmony | ROC-AUC | 0.840 | High (SHAP) |
+| **5. Notebook MTAT Proxy**| **MagnaTagATune**| **Synthetic Placeholder** | **ROC-AUC** | **0.500** | **Proxy (Placeholder)** |
 
 ---
 
