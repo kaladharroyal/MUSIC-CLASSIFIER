@@ -1,0 +1,16 @@
+progress_code/
+
+*.npy
+*.npz
+*.pth
+*.keras
+*.h5
+*.bin
+*.mp3
+*.wav
+*.zip
+*.tar.gz
+*.7z
+Data/
+__pycache__/
+.ipynb_checkpoints/
