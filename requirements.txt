@@ -1,0 +1,26 @@
+# Interpretable Music Auto-Tagging & Genre Classification
+# Core Dependencies
+
+# Deep Learning & Scientific Computing
+torch>=2.0.0
+torchaudio>=2.0.0
+numpy>=1.23.0
+pandas>=2.0.0
+scipy>=1.10.0
+
+# Audio Processing & Feature Extraction
+librosa>=0.10.0
+soundfile>=0.12.0
+audioread>=3.0.0
+
+# Machine Learning & Explainable AI (XAI)
+scikit-learn>=1.3.0
+xgboost>=2.0.0
+shap>=0.44.0
+joblib>=1.3.0
+
+# Visualization & Notebook Utilities
+matplotlib>=3.7.0
+seaborn>=0.12.0
+tqdm>=4.65.0
+nbformat>=5.9.0

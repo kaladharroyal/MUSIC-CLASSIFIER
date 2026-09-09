@@ -18,11 +18,10 @@ def evaluate_shap_faithfulness(model, X_test, y_test, shap_values, step_percenti
     
     # Calculate global mean feature importance from SHAP values
     if isinstance(shap_values, list):
-        # Multi-class list of SHAP matrices
         mean_shap = np.mean([np.abs(sv).mean(axis=0) for sv in shap_values], axis=0)
     else:
-        mean_shap = np.abs(shap_values).mean(axis=0)
-        
+        mean_shap = np.abs(shap_values).reshape(-1, n_features).mean(axis=0)
+
     # Rank features by importance (descending)
     ranked_indices = np.argsort(mean_shap)[::-1]
     
@@ -69,15 +68,17 @@ def evaluate_shap_faithfulness(model, X_test, y_test, shap_values, step_percenti
         "ranked_indices": ranked_indices
     }
 
-def plot_faithfulness_curves(steps, deletion_accs, insertion_accs, title="SHAP Faithfulness Evaluation"):
+def plot_faithfulness_curves(steps, deletion_accs, insertion_accs, title="SHAP Faithfulness Evaluation", save_path=None):
     """Plot Deletion vs Insertion Curves."""
-    plt.figure(figsize=(9, 5))
-    plt.plot(steps, deletion_accs, 'r-o', linewidth=2, label='Deletion Curve (Removing Top SHAP Features)')
-    plt.plot(steps, insertion_accs, 'g-s', linewidth=2, label='Insertion Curve (Adding Top SHAP Features)')
-    plt.xlabel('Percentage of Features Modified (%)')
-    plt.ylabel('Model Classification Accuracy')
-    plt.title(title)
+    plt.figure(figsize=(9, 5), dpi=300)
+    plt.plot(steps, [d * 100 if max(deletion_accs) <= 1.0 else d for d in deletion_accs], 'r-o', linewidth=2.5, label='Deletion Curve (Removing Top SHAP Features)')
+    plt.plot(steps, [i * 100 if max(insertion_accs) <= 1.0 else i for i in insertion_accs], 'g-s', linewidth=2.5, label='Insertion Curve (Adding Top SHAP Features)')
+    plt.xlabel('Percentage of Features Modified (%)', fontsize=12)
+    plt.ylabel('Model Classification Accuracy (%)', fontsize=12)
+    plt.title(title, fontsize=13, fontweight='bold')
     plt.grid(True, linestyle='--', alpha=0.7)
-    plt.legend()
+    plt.legend(fontsize=11)
     plt.tight_layout()
+    if save_path:
+        plt.savefig(save_path)
     plt.show()
