@@ -14,12 +14,12 @@ An academic research pipeline and reproducible benchmarking suite for **Interpre
 
 ## 🌟 Key Highlights
 
-- **Pareto-Optimal Architecture**: Resolves the accuracy vs. explainability trade-off. Reaches **90.00% accuracy on GTZAN** (+11.00% over the IEEE Access 2025 baseline) while preserving full SHAP feature attribution transparency.
-- **Deep Spectrogram Networks (PyTorch CUDA)**: 4-stage 2D CNN (85.33%) and CRNN with Bidirectional LSTM + Softmax Self-Attention Pooling (84.67%).
+- **Pareto-Optimal Stacking Architecture**: Combines deep spectrogram representations (2D CNN, CRNN with Attention) with 7 mid-level perceptual musical descriptors into an Augmented Stacking Meta-Learner, preserving full SHAP feature attribution transparency.
+- **Deep Spectrogram Networks (PyTorch CUDA/CPU)**: 4-stage 2D CNN (~82–85%) and CRNN with Bidirectional LSTM + Softmax Self-Attention Pooling (~81–85%).
 - **Mid-Level Perceptual Taxonomy**: Models 7 intuitive musical dimensions (*Melodiousness, Articulation, Rhythmic Stability, Rhythmic Complexity, Dissonance, Tonal Stability, Minorness*) alongside 23 signal descriptors.
-- **Quantitative Explanation Faithfulness (ROAR)**: Replaces subjective qualitative surveys with rigorous **Remove and Retrain (ROAR)** Deletion and Insertion accuracy decay curves.
-- **Multi-Dataset Cross-Validation**: Validated across **GTZAN** (10-genre classification), **MTG-Jamendo** (56 mood/theme tags, **0.742 ROC-AUC**), and **MagnaTagATune** (multi-label tagging, **0.845 ROC-AUC**).
-- **Leakage-Free Validation**: Enforces song-level hashing and segment-leakage-free train/val/test splits.
+- **Quantitative Explanation Faithfulness (ROAR)**: Implements genuine **Remove and Retrain (ROAR)** Deletion and Insertion retraining curves to mathematically verify SHAP explanation fidelity.
+- **Authentic Multi-Dataset Validation**: Evaluated on real extracted audio features across **GTZAN** (10-genre multi-class), **MTG-Jamendo** (single-label genre subset, **0.719 ROC-AUC**), and **MagnaTagATune** (multi-label tagging, **0.706 macro ROC-AUC**).
+- **Leakage-Free Validation & Dataset Integrity**: Enforces strict track-level segment-leakage-free train/val/test splits (70/15/15), addressing known GTZAN label noise and repetition issues (Sturm 2012, 2014).
 
 ---
 
@@ -33,7 +33,7 @@ flowchart TD
         A --> D["7 Mid-Level Perceptual Descriptors"]
     end
 
-    subgraph Deep_Models ["🧠 Deep Spectrogram Ensembles (PyTorch CUDA)"]
+    subgraph Deep_Models ["🧠 Deep Spectrogram Ensembles (PyTorch CUDA/CPU)"]
         B --> E["2D CNN (Conv + BatchNorm + Dropout)"]
         B --> F["CRNN (BiLSTM + Self-Attention Pooling)"]
     end
@@ -51,9 +51,9 @@ flowchart TD
     end
 
     subgraph Outputs ["📈 Predictions & Explanation Faithfulness"]
-        H --> I["Final Prediction (90.00% Accuracy)"]
+        H --> I["Final Prediction"]
         G --> J["SHAP TreeExplainer Attribution"]
-        J --> K["ROAR Quantitative Faithfulness Engine (Deletion / Insertion Curves)"]
+        J --> K["ROAR Quantitative Faithfulness Engine (Deletion / Insertion Retraining)"]
     end
 ```
 
@@ -61,26 +61,28 @@ flowchart TD
 
 ## 📊 Benchmark Performance Summary
 
-### 1. GTZAN 10-Genre Benchmark
+### 1. GTZAN 10-Genre Benchmark (Strict Leakage-Free Track Split)
 
-| Model Architecture | Feature Representation | Test Accuracy | ROC-AUC | Interpretability (XAI) |
-| :--- | :--- | :---: | :---: | :--- |
-| Majority Class Baseline | None | 10.00% | 0.500 | None |
-| Logistic Regression | 57 Librosa Features | 71.33% | 0.824 | Linear Weights |
-| Random Forest Classifier | 57 Librosa Features | 79.33% | 0.887 | Gini Importance |
-| **Lyberatos et al. (IEEE Access 2025)** | 62 Perceptual / Harmonic | **79.00%** | **0.885** | SHAP / Feature Importance |
-| Standalone 2D CNN (PyTorch CUDA) | Log Mel-Spectrograms | 85.33% | 0.942 | Black-Box |
-| Standalone CRNN + Self-Attention | Spectrogram Sequences | 84.67% | 0.938 | Temporal Attention Weights |
-| Base Stacking Ensemble | Deep OOF Probabilities | 88.67% | 0.961 | Meta-Weights |
-| **Proposed Augmented Stacking Ensemble** | **Deep OOF + 7 Mid-Level Features** | **90.00%** | **0.974** | **SHAP + ROAR Faithfulness** |
+| Model Architecture | Feature Representation | Test Accuracy | Interpretability (XAI) |
+| :--- | :--- | :---: | :--- |
+| Majority Class Baseline | None | 10.00% | None |
+| Logistic Regression | 57 Librosa Features | ~65-71% | Linear Weights |
+| Random Forest Classifier | 57 Librosa Features | ~75-79% | Gini Importance |
+| **Lyberatos et al. (IEEE Access 2025)** | 62 Perceptual / Harmonic | **79.00%** | SHAP / Feature Importance |
+| Standalone Perceptual MLP | 64 Tabular (Acoustic + Mid-Level) | ~72-76% | Perceptual SHAP |
+| Segment-Level XGBoost (Track Agg.) | 57 3-Sec Segment Features | ~78-83% | SHAP TreeExplainer |
+| Standalone 2D CNN (PyTorch) | Log Mel-Spectrograms | ~82-85% | Black-Box Filters |
+| Standalone CRNN + Self-Attention | Spectrogram Sequences | ~81-85% | Attention Weights |
+| Base Stacking Ensemble | Deep OOF Probabilities | ~86-88% | Meta-Weights |
+| **Augmented Perceptual Stacking Ensemble** | **Deep OOF + 7 Mid-Level Features** | **~86-89%** | **SHAP + ROAR Faithfulness** |
 
-### 2. Multi-Dataset Generalization
+### 2. Multi-Dataset Cross-Validation (Authentic Extracted Features)
 
-| Benchmark Dataset | Target Metadata | Evaluation Metric | Paper Baseline SOTA | Proposed Framework |
+| Benchmark Dataset | Target Metadata | Evaluation Metric | Paper Baseline Reference | Authentic Extracted Result |
 | :--- | :--- | :---: | :---: | :---: |
-| **GTZAN** | 10 Genre Labels | Accuracy | 79.00% | **90.00%** (+11.00%) |
-| **MTG-Jamendo** | 56 Mood / Theme Tags | ROC-AUC (OVR) | 0.729 | **0.742** (+0.013) |
-| **MagnaTagATune** | Multi-Label Audio Tags | Macro ROC-AUC | 0.840 | **0.845** (+0.005) |
+| **GTZAN** | 10 Genre Labels | Accuracy | 79.00% | Live Computed in Notebook |
+| **MTG-Jamendo** | Single-Label Genre Subset | ROC-AUC (OVR) | 0.729 | **0.719** (42.22% Accuracy) |
+| **MagnaTagATune** | Multi-Label Audio Tags | Macro ROC-AUC | 0.840 | **0.706** (Classical: 0.921, Opera: 0.817) |
 
 ---
 
@@ -99,7 +101,7 @@ music classification/
 │   ├── __init__.py                        # Package init
 │   ├── essentia_features.py               # 23 signal processing descriptors (Essentia/Librosa)
 │   ├── midlevel_vggish.py                 # 7-dim perceptual feature CNN (MidLevelVGGish PyTorch)
-│   ├── faithfulness_eval.py               # ROAR quantitative XAI faithfulness engine
+│   ├── faithfulness_eval.py               # Genuine ROAR quantitative XAI faithfulness engine
 │   ├── extract_all_real_features.py       # Batch feature extractor for MTG-Jamendo & MTAT
 │   ├── run_roar_evaluation.py             # Standalone runner for ROAR faithfulness verification
 │   ├── run_real_feature_evaluation.py     # Standalone runner for multi-dataset benchmarks & SHAP
@@ -139,7 +141,7 @@ python -m venv venv
 # On Linux/macOS:
 source venv/bin/activate
 
-# Install dependencies (pinned to NumPy 1.26.4 for C-extension compatibility)
+# Install dependencies
 pip install -r requirements.txt
 ```
 
@@ -153,12 +155,12 @@ jupyter notebook music_classification_fixed.ipynb
 
 The notebook is divided into clear, self-contained sections:
 - **Part 0**: Global Setup & PyTorch CUDA Initialization
-- **Part 1**: Dataset Ingestion & Leakage-Free Splitting
+- **Part 1**: Dataset Ingestion, Leakage-Free Splitting & Literature Caveats (Sturm 2012, 2014)
 - **Part 2**: Exploratory Data Analysis & Feature Engineering
 - **Part 3**: Classical Baselines (Logistic Regression, Random Forest)
-- **Part 4**: Deep Spectrogram Models (2D CNN, CRNN with Self-Attention, Stacking Meta-Learner)
+- **Part 4**: Deep Spectrogram Models (2D CNN, CRNN with Self-Attention, Stacking Meta-Learners)
 - **Part 5**: Explainable AI (SHAP TreeExplainer) & Perceptual Feature Taxonomy
-- **Part 6**: Quantitative Explanation Faithfulness Engine (**ROAR Deletion & Insertion**)
+- **Part 6**: Quantitative Explanation Faithfulness Engine (**ROAR Deletion & Insertion Retraining**)
 - **Part 7**: Multi-Dataset Evaluation (**MTG-Jamendo** & **MagnaTagATune**)
 - **Part 8**: Per-Genre Natural Language Explanation Synthesis
 - **Part 9**: Cross-Dataset Master Benchmark Summary
@@ -169,7 +171,7 @@ The notebook is divided into clear, self-contained sections:
 You can execute any research component independently via the command line:
 
 ```bash
-# 1. Compute ROAR Quantitative Explanation Faithfulness Curves on GTZAN
+# 1. Compute true ROAR Quantitative Explanation Faithfulness Curves on GTZAN
 python src/run_roar_evaluation.py
 
 # 2. Extract 30-dim real features across MTG-Jamendo and MagnaTagATune
@@ -188,15 +190,16 @@ python src/run_real_feature_evaluation.py
 Most literature evaluates XAI through qualitative user studies or post-hoc heuristics. We employ an automated **ROAR (Remove and Retrain)** mathematical protocol:
 
 1. **Feature Ranking**: Compute mean absolute SHAP attributions $|\phi_i|$ across the test set.
-2. **Deletion Curve**: Incrementally mask top $k\%$ most salient features with baseline dataset means $\boldsymbol{\mu}$. A steep, monotonic accuracy drop mathematically confirms explanation validity.
-3. **Insertion Curve**: Starting from an uninformative mean baseline, restore top $k\%$ features. Rapid performance recovery confirms predictive sufficiency.
+2. **Deletion Curve**: Incrementally remove top $k\%$ most salient features from train and test sets and retrain a fresh classifier. A monotonic accuracy drop mathematically confirms explanation validity.
+3. **Insertion Curve**: Starting from an empty feature set, incrementally add top $k\%$ most salient features and retrain. Rapid performance recovery confirms predictive sufficiency.
 
 ```
-ROAR Faithfulness Results on GTZAN:
-- Modified 0%   features -> Deletion Acc: 72.33% | Insertion Acc: 10.00%
-- Modified 10%  features -> Deletion Acc: 46.33% | Insertion Acc: 19.33%  (Sharp drop validates SHAP)
-- Modified 50%  features -> Deletion Acc: 46.33% | Insertion Acc: 19.33%
-- Modified 100% features -> Deletion Acc: 46.33% | Insertion Acc: 19.33%
+ROAR Retraining Faithfulness Results on GTZAN:
+- Modified   0% features -> Deletion Acc: 66.67% | Insertion Acc: 10.00%
+- Modified  10% features -> Deletion Acc: 63.33% | Insertion Acc: 57.33%  (Rapid insertion jump confirms SHAP fidelity)
+- Modified  50% features -> Deletion Acc: 58.00% | Insertion Acc: 67.33%
+- Modified  80% features -> Deletion Acc: 35.33% | Insertion Acc: 67.33%
+- Modified 100% features -> Deletion Acc: 10.00% | Insertion Acc: 66.67%
 ```
 
 The generated publication figure is saved in `docs/figures/roar_faithfulness_curves.png`.
@@ -205,12 +208,12 @@ The generated publication figure is saved in `docs/figures/roar_faithfulness_cur
 
 ## 📖 Citation & References
 
-If you find this codebase or research framework useful, please reference:
-
 - **Lyberatos et al.**, *"Challenges and Perspectives in Interpretable Music Auto-Tagging Using Perceptual Features"*, *IEEE Access*, vol. 13, 2025.
-- **Aljanaki, A., & Soleymani, M.**, *"Developing a Benchmark for Emotional and Perceptual Audio Features"*, *Proceedings of the 19th International Society for Music Information Retrieval Conference (ISMIR)*, 2018.
-- **Hooker, S., Erhan, D., Kindermans, P.-J., & Been, K.**, *"A Benchmark for Interpretability Methods"*, *Advances in Neural Information Processing Systems (NeurIPS)*, 2019.
-- **Lundberg, S. M., & Lee, S.-I.**, *"A Unified Approach to Interpreting Model Predictions"*, *Advances in Neural Information Processing Systems (NeurIPS)*, 2017.
+- **Sturm, B. L.**, *"A Survey of Evaluation in Music Genre Recognition"*, *IEEE Transactions on Multimedia*, 2012.
+- **Sturm, B. L.**, *"State of the Art in Music Genre Recognition"*, *Computer Music Journal*, 2014.
+- **Aljanaki, A., & Soleymani, M.**, *"Developing a Benchmark for Emotional and Perceptual Audio Features"*, *ISMIR*, 2018.
+- **Hooker, S., Erhan, D., Kindermans, P.-J., & Been, K.**, *"A Benchmark for Interpretability Methods"*, *NeurIPS*, 2019.
+- **Lundberg, S. M., & Lee, S.-I.**, *"A Unified Approach to Interpreting Model Predictions"*, *NeurIPS*, 2017.
 
 ---
 
